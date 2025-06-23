@@ -4,7 +4,7 @@
  * Plugin Name: Tempo Sconto Utente
  * Description: Applica uno sconto personale e temporaneo a un prodotto WooCommerce. Configurabile dal backend.
  * Version: 4.1
- * Author: Il Tuo Nome
+ * Author: Angelo A
  */
 
 if (!defined('ABSPATH')) exit;
