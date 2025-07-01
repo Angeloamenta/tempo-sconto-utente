@@ -2,15 +2,13 @@ document.addEventListener("DOMContentLoaded", function () {
   const timerDivs = document.querySelectorAll(".tsu-timer");
   const prezziDivs = document.querySelectorAll(".tsu-prezzi");
   const soloScontoDivs = document.querySelectorAll(".tsu-solo-sconto");
-  const originalPriceEls = document.querySelectorAll(".tsu-prezzo-originale");
 
-  const duration = parseInt(document.body.dataset.tsuDurata || "2");
-  const version = document.body.dataset.tsuVersion;
+  const settingsVersion = document.body.dataset.tsuVersion;
   const storedVersion = localStorage.getItem("tsuVersion");
 
-  if (version && storedVersion !== version) {
+  if (settingsVersion && storedVersion !== settingsVersion) {
     localStorage.removeItem("tsuStartTime");
-    localStorage.setItem("tsuVersion", version);
+    localStorage.setItem("tsuVersion", settingsVersion);
   }
 
   let start = localStorage.getItem("tsuStartTime");
@@ -23,46 +21,64 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   if (!start) return;
-  const end = parseInt(start) + 1000 * 60 * duration;
+  const end = parseInt(start) + 1000 * 60 * parseInt(document.body.dataset.tsuDurata || "2");
 
-  timerDivs.forEach(div => {
-    function update() {
+  // TIMER VISUAL
+  timerDivs.forEach(timerDiv => {
+    function updateTimer() {
       const now = Date.now();
       const diff = end - now;
       if (diff <= 0) {
-        div.innerText = "L’offerta è terminata.";
+        timerDiv.innerText = "L’offerta è terminata, ma puoi ancora acquistarlo.";
         return;
       }
       const mins = Math.floor(diff / 60000);
       const secs = Math.floor((diff % 60000) / 1000);
-      div.innerText = `Offerta valida ancora per: ${mins}m ${secs}s`;
-      setTimeout(update, 1000);
+      timerDiv.innerText = `Super Offerta Lancio -50% valida ancora per: ${mins}m ${secs}s`;
+      setTimeout(updateTimer, 1000);
     }
-    update();
+    updateTimer();
   });
 
-  function updatePrezzi() {
-    const now = Date.now();
-    const attivo = now < end;
-    prezziDivs.forEach(div => {
-      const originale = div.dataset.prezzoOriginale;
-      const scontato = div.dataset.prezzoScontato;
-      div.querySelector(".tsu-original-price").innerHTML = attivo ? "<del>" + originale + "</del>" : "";
-      div.querySelector(".tsu-discounted-price").textContent = attivo ? scontato : originale;
-    });
+  // PREZZI COMPLETI
+  prezziDivs.forEach(prezziDiv => {
+    const originale = prezziDiv.dataset.prezzoOriginale;
+    const scontato = prezziDiv.dataset.prezzoScontato;
+    const originalEl = prezziDiv.querySelector(".tsu-original-price");
+    const discountEl = prezziDiv.querySelector(".tsu-discounted-price");
 
-    soloScontoDivs.forEach(div => {
-      const el = div.querySelector(".tsu-discounted-price");
-      const s = div.dataset.prezzoScontato;
-      el.textContent = attivo ? s : "";
-      div.style.display = attivo ? "block" : "none";
-    });
+    function updatePrezzo() {
+      const now = Date.now();
+      if (now < end) {
+        originalEl.innerHTML = '<del>' + originale + '</del>';
+        discountEl.textContent = scontato;
+      } else {
+        originalEl.textContent = '';
+        discountEl.textContent = originale;
+      }
+    }
 
-    originalPriceEls.forEach(el => {
-      el.style.display = attivo ? "inline" : "none";
-    });
-  }
+    updatePrezzo();
+    setInterval(updatePrezzo, 1000);
+  });
 
-  updatePrezzi();
-  setInterval(updatePrezzi, 1000);
+  // SOLO PREZZO SCONTATO
+  soloScontoDivs.forEach(div => {
+    const scontato = div.dataset.prezzoScontato;
+    const el = div.querySelector(".tsu-discounted-price");
+
+    function updateSoloSconto() {
+      const now = Date.now();
+      if (now < end) {
+        el.textContent = scontato;
+        div.style.display = "block";
+      } else {
+        el.textContent = "";
+        div.style.display = "none";
+      }
+    }
+
+    updateSoloSconto();
+    setInterval(updateSoloSconto, 1000);
+  });
 });

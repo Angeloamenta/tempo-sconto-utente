@@ -1,0 +1,21 @@
+.tsu-timer {
+    font-weight: bold;
+    font-size: 1.2em;
+    margin-bottom: 1em;
+}
+
+.tsu-prezzi .tsu-original-price del {
+    color: #999;
+    margin-right: 0.5em;
+}
+
+.tsu-discounted-price {
+    color: #e74c3c;
+    font-weight: bold;
+    font-size: 1.4em;
+}
+
+.tsu-solo-sconto {
+    font-weight: bold;
+    color: #e74c3c;
+}
